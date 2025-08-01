@@ -1,0 +1,32 @@
+# API Web Framework
+flask==2.3.3
+flask-cors==4.0.0
+gunicorn==21.2.0
+
+# Traitement vidéo
+ffmpeg-python==0.2.0
+moviepy==1.0.3
+
+# AWS S3
+boto3==1.28.85
+botocore==1.31.85
+
+# Traitement asynchrone
+celery==5.3.4
+redis==5.0.1
+
+# Utilitaires
+requests==2.31.0
+python-dotenv==1.0.0
+pathlib==1.0.1
+psutil==5.9.6
+
+# Monitoring et logs
+structlog==23.2.0
+
+# Validation des données
+marshmallow==3.20.1
+jsonschema==4.19.2
+
+# Manipulation de fichiers
+python-magic==0.4.27

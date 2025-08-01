@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  video-optimizer:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: video-optimizer-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      # Volumes pour les fichiers vidéo
+      - ./videos/input:/app/input:rw
+      - ./videos/output:/app/output:rw
+      - ./videos/temp:/app/temp:rw
+      - ./logs:/app/logs:rw
+      # Configuration AWS (optionnel)
+      - ~/.aws:/home/videouser/.aws:ro
+    environment:
+      # Configuration Flask
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+      
+      # Configuration S3 (à adapter selon vos besoins)
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-eu-west-1}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      
+      # Configuration de l'optimisation vidéo
+      - MAX_FILE_SIZE=500MB
+      - ALLOWED_EXTENSIONS=mp4,avi,mov,mkv,webm,flv
+      - DEFAULT_CODEC=libx264
+      - DEFAULT_PRESET=medium
+      - DEFAULT_CRF=23
+      
+      # Configuration pour les performances
+      - MAX_CONCURRENT_JOBS=2
+      - CLEANUP_TEMP_FILES=true
+      
+    healthcheck:
+      test: curl --fail http://localhost:5000/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Limites de ressources
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    
+    # Réseau
+    networks:
+      - video-network
+
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: video-optimizer-redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+  #   command: redis-server --appendonly yes
+  #   networks:
+  #     - video-network
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.5'
+  #         memory: 512M
+
+networks:
+  video-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local
+
+# Configuration pour le développement
+# Décommentez cette section pour le développement
+# services:
+#   video-optimizer-dev:
+#     extends:
+#       service: video-optimizer
+#     environment:
+#       - FLASK_ENV=development
+#       - FLASK_DEBUG=1
+#     volumes:
+#       - .:/app:rw
+#     command: python3 -m flask run --host=0.0.0.0 --port=5000 --reload
