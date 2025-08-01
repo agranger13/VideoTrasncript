@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y \
     libswresample-dev \
     libavfilter-dev \
     libavdevice-dev \
+    frei0r-plugins-dev \
     # Dépendances pour rav1e
     cargo \
     rustc \
@@ -56,7 +57,7 @@ RUN git clone https://github.com/xiph/rav1e.git /tmp/rav1e && \
 # Compilation de FFmpeg avec support rav1e
 RUN git clone https://git.ffmpeg.org/ffmpeg.git /tmp/ffmpeg && \
     cd /tmp/ffmpeg && \
-    git checkout release/6.1 && \
+    git checkout release/7.1 && \
     ./configure \
         --enable-gpl \
         --enable-version3 \
