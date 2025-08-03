@@ -1,0 +1,13 @@
+Commandes de tests de docker up:
+```bash
+curl http://localhost:5000/health
+curl http://localhost:5000/codecs
+curl \
+  -F "codec=h264" \
+  -F "quality=low" \
+  -F "upload_s3=false" \
+  -F "video=@./videos/sample/sample_1.mp4" \
+  http://localhost:5000/encode
+```
+
+ffmpeg -i input/sample_1.mp4 -c:v libsvtav1 -preset 10 -crf 35 -c:a copy output/sample_1.mp4

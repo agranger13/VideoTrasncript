@@ -8,7 +8,7 @@ PROJECT_NAME = video-optimizer
 
 # Construction de l'image
 build:
-	docker-compose -f $(COMPOSE_FILE) build --no-cache
+	docker-compose -f $(COMPOSE_FILE) build
 
 # Démarrage des services
 up:

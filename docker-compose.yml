@@ -5,60 +5,52 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+    image: <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/bulle/videotrasncript-video-optimizer:latest
     container_name: video-optimizer-api
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "80:5000"
     volumes:
-      # Volumes pour les fichiers vidéo
       - ./videos/input:/app/input:rw
       - ./videos/output:/app/output:rw
       - ./videos/temp:/app/temp:rw
       - ./logs:/app/logs:rw
-      # Configuration AWS (optionnel)
-      - ~/.aws:/home/videouser/.aws:ro
+      - ~/.aws:/root/.aws:ro
     environment:
-      # Configuration Flask
       - FLASK_ENV=production
       - FLASK_APP=app.py
-      
-      # Configuration S3 (à adapter selon vos besoins)
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-eu-west-1}
       - S3_BUCKET_NAME=${S3_BUCKET_NAME}
-      
-      # Configuration de l'optimisation vidéo
       - MAX_FILE_SIZE=500MB
       - ALLOWED_EXTENSIONS=mp4,avi,mov,mkv,webm,flv
       - DEFAULT_CODEC=libx264
       - DEFAULT_PRESET=medium
       - DEFAULT_CRF=23
-      
-      # Configuration pour les performances
-      - MAX_CONCURRENT_JOBS=2
+      - MAX_CONCURRENT_JOBS=1
       - CLEANUP_TEMP_FILES=true
-      
+      - SVT_AV1_THREADS=0
     healthcheck:
-      test: curl --fail http://localhost:5000/health || exit 1
+      test: ["CMD", "curl", "--fail", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    
-    # Limites de ressources
     deploy:
       resources:
         limits:
-          cpus: '4.0'
-          memory: 4G
+          cpus: '0.1'
+          memory: 512M
         reservations:
-          cpus: '1.0'
-          memory: 1G
-    
-    # Réseau
+          cpus: '0.1'
+          memory: 512M
     networks:
       - video-network
+
+networks:
+  video-network:
+    driver: bridge
 
   # redis:
   #   image: redis:7-alpine
@@ -76,10 +68,6 @@ services:
   #       limits:
   #         cpus: '0.5'
   #         memory: 512M
-
-networks:
-  video-network:
-    driver: bridge
 
 volumes:
   redis-data:

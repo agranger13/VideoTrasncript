@@ -2,3 +2,4 @@
 logs*
 nginx*
 videos*
+*.pem

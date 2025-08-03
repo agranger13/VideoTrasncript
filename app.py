@@ -74,10 +74,7 @@ class VideoEncoder:
                 '-c:v', 'librav1e',
                 '-qp', str(quality),
                 '-speed', str(speed),
-                '-tile-columns', '2',
-                '-tile-rows', '1',
                 '-c:a', 'libopus',
-                '-b:a', '96k',
                 '-movflags', '+faststart',
                 '-y',
                 str(output_path)
